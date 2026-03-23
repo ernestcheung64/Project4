@@ -2,7 +2,8 @@
 #include <string>
 #include <array>
 #include <memory>
-
+#include <vector>
+#include "GLFW/glfw3.h"
 
 using std::cout;
 using std::endl;
@@ -868,6 +869,7 @@ int main()
 }
 #endif
 
+#if 0
 class Entity
 {
 public:
@@ -901,3 +903,91 @@ int main()
 	scopedptr->Print();
 	return 0;
 }
+#endif
+
+#if 0
+struct Vector3
+{
+	float x, y, z;
+
+};
+int main()
+{
+	int offset = (int)&((Vector3*)nullptr)->y;
+	cout << &((Vector3*)nullptr)->y << endl;
+	cout << offset << endl;
+	return 0;
+}
+#endif
+
+#if 0
+struct Vertex
+{
+	float x, y, z;
+};
+
+std::ostream& operator<<(std::ostream& stream, const Vertex& vertex)
+{
+	stream << vertex.x << "," << vertex.y << "," << vertex.z;
+	return stream;
+}
+
+int main()
+{
+	std::vector<Vertex> vertices;
+	vertices.push_back({ 1, 2, 3 });
+	vertices.push_back({ 4, 5, 6 });
+	for (int i = 0; i < vertices.size();i++)
+	{
+		cout << vertices[i] << endl;
+	}
+	
+	vertices.erase(vertices.begin()+1);
+
+	for (Vertex& v : vertices)
+	{
+		cout << v << endl;
+	}
+	return 0;
+}
+#endif
+
+#if 0
+struct Vertex
+{
+	float x, y, z;
+	Vertex(float x, float y, float z)//构造函数必须有，否则下面无法使用push_back等创建语句
+		:x(x), y(y), z(z)
+	{
+	}
+	Vertex(const Vertex& other)
+		:x(other.x), y(other.y), z(other.z)
+	{
+		cout << "Copied Vertex!" << endl;
+	}
+
+};
+
+int main()
+{
+	std::vector<Vertex> vertices;
+	vertices.reserve(3);
+	vertices.push_back({ 1, 2, 3 });
+	vertices.push_back({ 4, 5, 6 });
+	vertices.push_back({ 7, 8, 9 });
+	//每加入一个新元素，检查容量，如果容量不够则销毁并重新分配空间，旧的元素被复制到新的空间中，最后新元素被添加到新的空间中
+	
+	vertices.emplace_back(1, 2, 3);
+	vertices.emplace_back(4, 5, 6);
+	vertices.emplace_back(7, 8, 9);
+	//如果使用emplace_back()，则直接在stack上构造新元素，避免了不必要的复制和移动操作，提高了性能	
+	return 0;
+}
+#endif
+
+int main()
+{
+	int a = glfwInit();
+	return 0;
+}
+ 
