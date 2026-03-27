@@ -8,6 +8,7 @@
 using std::cout;
 using std::endl;
 using std::string;
+using std::vector;
 
 #if 0
 class Log
@@ -990,4 +991,128 @@ int main()
 	int a = glfwInit();
 	return 0;
 }*/
+
+#if 0
+template<typename T>
+void Print(T value)
+{
+	std::cout << value << std::endl;
+}
+int main()
+{
+	Print(5);
+	Print(3.14f);
+	Print("Hello World");
+	return 0;
+}
+#endif
+
+#if 0
+template <typename T, int N>
+class Array
+{
+private:
+	T m_Array[N];
+public:
+	int Getsize()const
+	{
+		return N;
+	}
+};
+int main()
+{
+	Array<int, 5> array;
+	cout << array.Getsize() << endl;
+}
+#endif
+
+#if 0
+struct Vector3
+{
+	float x, y, z;
+	Vector3()
+		:x(10), y(20), z(30)
+	{
+	}
+};
+int main()
+{
+	int value = 5;
+	int array[5];
+	array[0] = 1;
+	array[1] = 2;
+	array[2] = 3;
+	array[3] = 4;
+	array[4] = 5;
+	Vector3 vector;
+
+
+	int* hvalue = new int;
+	*hvalue = 5;
+	int* harray = new int[5];
+	Vector3* hvector = new Vector3;	
+	delete hvalue;
+	delete[] harray;
+	delete hvector;
+
+}
+#endif
+
+#if 0
+#define DEBUG 0
+#if DEBUG == 1
+#define LOG(x) std::cout << x << std::endl;
+#else
+#define LOG(x)
+#endif
+
+int main()
+{
+	LOG("Hello World");
+	return 0;
+}
+#endif
+
+#if 0
+int main()
+{
+	vector<string> strings;
+	strings.push_back("John");
+	strings.push_back("Tom");
+#if 0
+	for (vector<string>::iterator it = strings.begin(); it != strings.end(); it++)
+	{
+		cout << *it << endl;
+	}
+#endif
+	for(auto it = strings.begin(); it != strings.end(); it++)
+	{
+		cout << *it << endl;
+	}
+	return 0;
+}
+#endif
+
+//静态数组
+template<typename T, int a>//模版可以解决下方array输入参数不定的情况
+void PrintArray(std::array<T, a>& data)
+{
+	for (int i = 0; i < data.size(); i++)
+	{
+		cout << data[i] << endl;
+	}
+}
+
+int main()
+{
+	std::array<int, 5>data;
+	data[0] = 1;
+	data[4] = 5;
+	  
+	PrintArray(data);
+
+}
+
+
+
  
