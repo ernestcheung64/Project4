@@ -985,9 +985,9 @@ int main()
 }
 #endif
 
-int main()
+/*int main()
 {
 	int a = glfwInit();
 	return 0;
-}
+}*/
  
