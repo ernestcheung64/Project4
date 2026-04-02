@@ -1094,6 +1094,7 @@ int main()
 #endif
 
 //静态数组
+#if 0
 template<typename T, int a>//模版可以解决下方array输入参数不定的情况
 void PrintArray(std::array<T, a>& data)
 {
@@ -1112,7 +1113,258 @@ int main()
 	PrintArray(data);
 
 }
+#endif
+
+#if 0
+void Hello(int a)
+{
+	cout << "Hello" << a << endl;
+}
+int main()
+{
+	auto PrintHello = Hello;//函数指针
+	PrintHello(6);
+
+	void(*PrintHello2)(int) = Hello;//函数指针
+	PrintHello2(6);
+	//三部分：返回值（*自定义函数名）（输入形参）
+}
+#endif
+
+#if 0
+//函数指针
+void PrintValue(int value)
+{
+	cout << value << endl;
+}
+
+void ForEach(vector<int>& values, void(*PrintValue)(int))
+{
+	for (int a : values)
+		PrintValue(a);
+}
+
+int main()
+{
+	vector<int> values = { 1,2,3,4,5 };
+	ForEach(values, PrintValue);  
+}
+#endif
+
+#if 0
+void ForEach(vector<int>& Values, const std::function<void(int)>& Lamda)
+{
+	for (int v : Values)
+		Lamda(v);
+}
+
+int main()
+{
+	vector<int> values = { 1,2,3,4,5 };
+	//从这里来看下面的value是自动识别的，定义了一个函数输入int value，就会自动地输入vector中的int值 
+	auto it = std::find_if(values.begin(), values.end(), [](int value) {return value > 3;});
+	cout << *it << endl;
+	
+	auto lamda = [=](int value)
+		{
+			cout << value << endl;
+		};
+	ForEach(values, lamda);
+}
+#endif
+
+#if 0
+namespace apple
+{
+	void Print(const string& text)
+	{
+		cout << text << endl;
+	}
+}
+namespace orange
+{
+	void Print(const char* text)
+	{
+		string temp = text;
+		std::reverse(temp.begin(), temp.end());
+		cout << temp << endl;
+	}
+}
+
+using namespace apple;
+using namespace orange;
+
+int main()
+{
+	Print("Hello");
+}
+#endif
+
+#if 0
+static bool s_finished = false;
+
+void DoWork()
+{
+	cout << "Started thread: " << std::this_thread::get_id() << endl;
+	while (!s_finished)
+	{
+		cout << "Working...\n" << endl;
+		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+	}
+	cout << "Ended thread: " << std::this_thread::get_id() << endl;
+}
+int main()
+{
+	cout << "Started thread: " << std::this_thread::get_id() << endl;
+	std::thread worker(DoWork);
+	
+	std::cin.get();
+	s_finished = true;
+
+	worker.join();
+	/*worker.join() causes the calling thread (here main) to wait until the worker thread finishes execution.
+Key points
+•It blocks the caller until the thread function returns (or the thread exits).
+•After join() the std::thread becomes non-joinable; you cannot join() it again.
+•Always check thread.joinable() (or design control flow) before calling join() to avoid std::system_error.
+•Calling join() on the same thread from inside that thread (self-join) or joining a non-joinable thread throws.
+•If you don't want to wait, use thread.detach() to let the thread run independently (but then you must ensure its lifetime/synchronization manually).*/
+
+	std::cin.get();
+	cout << "Ended thread: " << std::this_thread::get_id() << endl;
+}
+#endif
+
+//线程thread
+#if 0
+static bool s_finished = false;
+
+void DoWork()
+{
+	while (!s_finished)
+	{
+		cout << "Working...\n" << endl;
+		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+	}
+}
+int main()
+{
+
+	DoWork();//如果不采用thread，那么压根就不会运行到下一行，所以按回车也不会使循环停止
+	//采用thread之后循环打印和main并行，所以cinget被挂起，输入回车触发结束循环
+
+	std::cin.get();
+	s_finished = true;
 
 
+	std::cin.get();
+}
+#endif
 
- 
+//计时
+#if 0
+struct Timer
+{
+	std::chrono::steady_clock::time_point start;
+	std::chrono::steady_clock::time_point end;
+	std::chrono::duration<float> duration;
+	Timer()
+	{
+		start = std::chrono::high_resolution_clock::now();
+	}
+	~Timer()
+	{
+		end = std::chrono::high_resolution_clock::now();
+		duration = end - start;
+
+		float ms = duration.count() * 1000.0f;
+		cout << "Timer took " << ms << "ms" << endl;
+	}
+};
+
+void Function()
+{
+	Timer timer;//结构体随函数运行创建，函数运行结束销毁，触发构造和析构函数
+	for (int i = 0; i < 100; i++)
+	{
+		cout << "hello\n";//\n换行符比endl速度更快
+	}
+}
+
+int main()
+{
+	/*using namespace std::literals::chrono_literals;
+	
+	auto start = std::chrono::high_resolution_clock::now();
+	std::this_thread::sleep_for(1s);
+	auto end = std::chrono::high_resolution_clock::now();
+
+	std::chrono::duration<float> duration = end - start;
+
+	cout << duration.count() << "s" << endl;*/
+	
+	Function();
+
+}
+#endif
+
+#if 0
+int main()
+{
+	int** array_array = new int* [50];
+	int** ptr = array_array;
+
+	for (int i = 0; i < 50; i++)
+	{
+		array_array[i] = new int[50];
+		//这里不能用*array_array = new int [50] 初始化
+		//并且这里必须先进行int数组的初始化
+		for (int j = 0; j < 50; j++)
+			array_array[i][j] = j;
+	}
+	for (int i = 0; i < 50; i++)
+	{
+		int* pptr = *ptr;
+		for (int j = 0; j < 50; j++)
+		{
+			cout << *pptr <<" ";
+			pptr++;//如果只用原来的ptr，循环之后改变了存储在ptr位置的变量值，最后变成了每个数组的第50个元素地址
+		}
+		cout << endl;
+		ptr++;
+	}//打印这里似乎没有任何问题，采用全指针的方法
+	for (int i = 0; i < 50; i++)
+		delete[]array_array[i];
+	delete[]array_array;
+
+	int* arr = new int[5 * 5];
+	for (int x = 0; x < 5; x++)
+	{
+		for (int y = 0;y < 5;y++)
+		{
+			arr[y + x * 5] = y;
+		}
+	}
+}
+#endif
+
+#if 0
+int main()
+{
+	vector<int> values = { 1,5,1,4,2 };
+	values.push_back(3);
+	//这里按照vector的元素定义为int，所以一次只能push一个int
+	//std::sort(values.begin(), values.end());
+	std::sort(values.begin(), values.end(), [](int a, int b)//根据返回的bool值确定ab的顺序 
+		{
+			if (a == 1)
+				return false;
+			if (b == 1)
+				return true;
+			return a < b;
+		});
+	for (int v : values)//vector的打印模式，前面有打印结构体的更复杂方法
+		cout << v << endl;
+}
+#endif
+
