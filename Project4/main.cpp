@@ -4,6 +4,10 @@
 #include <memory>
 #include <vector>
 #include "GLFW/glfw3.h"
+#include <algorithm>
+#include <functional>
+#include <thread>
+#include <chrono>
 
 using std::cout;
 using std::endl;
@@ -1365,6 +1369,189 @@ int main()
 		});
 	for (int v : values)//vector的打印模式，前面有打印结构体的更复杂方法
 		cout << v << endl;
+}
+#endif
+
+#if 0
+struct Entity
+{
+	int x, y;
+};
+int main()
+{
+	//三种构造，这些应该要非常熟练
+	Entity e({ 5,8 });
+	Entity another_e = { 5,8 };
+	Entity* e_ptr = new Entity({ 5, 8 });
+
+	int* position = (int*)&e;
+	cout << position[1] << "," << position[2] << endl;
+	//这里虽然第3个元素没有定义，但是仍然编译通过并可以打印，说明有自动移位？
+
+	int y = *(int*)((char*)&e + 4);
+	cout << y << endl;
+}
+#endif
+
+//union, 关键就是共享内存块, 还有就是署名状态问题 
+#if 0
+struct Vector2
+{
+	float a, b;
+};
+struct Vector4//这就是已署名状态，适用于struct, union等格式
+{
+	union
+	{
+		struct
+		{
+			float x, y, z, w;
+		};
+		struct
+		{
+			Vector2 a, b;
+		};
+	};
+};
+void PrintVector2(const Vector2& vector)
+{
+	cout << vector.a << "," << vector.b << endl;
+}
+int main()
+{
+	union//匿名状态，可以直接调用赋值
+	{
+		float a;
+		int b;
+	};
+	a = 3.14f;//这里可以直接给a赋值。a和b共享同一块内存，修改a的值会影响b的值，反之亦然。
+	cout << a << "," << b << endl;//a, b共享一块内存，但是b按照int将这32个bit转为整数，a则按照浮点数的规则处理
+
+	Vector4 vector = { 1.0f,2.0f,3.0f,4.0f };
+	PrintVector2(vector.a);
+	vector.z = 500.0f;
+	PrintVector2(vector.b);
+}
+#endif
+
+#if 0
+class Base
+{
+public:
+	Base() { cout << "Base Constructor\n"; }
+	virtual ~Base() { cout << "Base Deconstructor\n"; }
+	//这里必须是virtual，不然后面不会调用
+	//允许有子类时基类的析构函数一定要注明为虚
+};
+
+class Derived : public Base//private继承和public继承的区别在于，private继承会将基类的成员函数和成员变量变为派生类的私有成员，而public继承会将基类的成员函数和成员变量保持为派生类的公共成员。
+{//继承包括基类的public和protected成员，但不包括private成员。派生类可以访问基类的public和protected成员，但不能访问private成员。
+public:
+	Derived() { cout << "Derived Constructor\n"; }
+	~Derived() { cout << "Derived Deconstructor\n"; }
+};
+int main()
+{
+	Base* base = new Base;
+	delete base;
+	cout << "-------------------" << endl;
+	Derived* derived = new Derived;
+	delete derived;
+	cout << "-------------------" << endl;
+
+	Base* another_derived = new Derived;
+	delete another_derived;
+
+}
+#endif
+
+#if 0
+class Base
+{
+public:
+	Base() { cout << "Base Constructor\n"; }
+	virtual ~Base() { cout << "Base Deconstructor\n"; }
+};
+
+class Derived : public Base
+{
+public:
+	Derived() { cout << "Derived Constructor\n"; }
+	~Derived() { cout << "Derived Deconstructor\n"; }
+};
+int main()
+{
+	Base* p = static_cast<Base*>(new Derived);
+	//向上强转到父类
+	Base* another_p = new Derived;
+
+	//向下强转子类
+	Base* d = new Derived;
+	Derived* another_d = dynamic_cast<Derived*>(d);
+
+	const int e = 10;
+	int* another_e = const_cast<int*>(&e);
+	 //显然这里必须要用指针指向变量，不能直接用变量名
+
+	int f = 10;
+	double another_f = static_cast<double>(f);//普通转换
+
+	int c = 65;
+	char* another_c = reinterpret_cast<char*>(&c);
+	cout << *another_c << endl;
+
+}
+#endif
+
+#if 0
+int main()
+{
+	int x = 1;
+	if (*(char*)&x == 1)
+		cout << "小端";
+	else
+		cout << "大端";
+}
+//任何数据都可以强转为char类型，因为char是最小可寻址单位（字节）
+#endif
+
+#if 0
+class A
+{
+public:
+	int size = 5;
+	int* p = new int(3);
+	int* ptr = new int[size] {1, 2, 3, 4, 5};
+	int x, y;
+	A(const A& other)
+		:p(new int(*other.p)),
+		size(other.size),
+		x(other.x),
+		y(other.y)
+	{
+		ptr = new int[size];
+		memcpy(ptr, other.ptr, other.size * sizeof(int));
+	}//数组必须自己进行复制，用memcpy进行统一操作或者用循环
+	A(int x, int y)
+		:x(x),y(y)
+	{ }
+	~A()
+	{
+		delete p;
+		delete [] ptr;
+	}
+};
+std::ostream& operator<<(std::ostream& stream, const A& a)
+{
+	stream << a.x << "," << a.y << endl;
+	return stream;
+}
+int main()
+{
+	A* a = new A(1, 2);
+	cout << *a << endl;
+	cout << a->ptr[1] << endl;
+	delete a;
 }
 #endif
 
