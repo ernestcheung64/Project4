@@ -1,1 +1,0 @@
-static int s_Variable = 5;//static makes this variable only visible in this file, it is not visible in other files. It is a way to limit the scope of the variable to this file only.

@@ -1,13 +1,4 @@
-﻿#include <iostream>
-#include <string>
-#include <array>
-#include <memory>
-#include <vector>
-#include "GLFW/glfw3.h"
-#include <algorithm>
-#include <functional>
-#include <thread>
-#include <chrono>
+﻿#include "pch.h"
 
 using std::cout;
 using std::endl;
@@ -1555,3 +1546,8 @@ int main()
 }
 #endif
 
+int main()
+{
+	cout << "Hello World" << endl;
+
+}
